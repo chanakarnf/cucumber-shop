@@ -12,6 +12,7 @@ import org.junit.rules.ExpectedException;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BuyStepdefs {
 
@@ -23,8 +24,7 @@ public class BuyStepdefs {
         catalog = new ProductCatalog();
         order = new Order();
     }
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
+
     @Given("เรามีสินค้าเหล่านี้")
     public void เรามีสินค้าเหล่านี้(DataTable table){
         Map<String,Double> data = table.asMap(String.class, Double.class);
@@ -47,13 +47,12 @@ public class BuyStepdefs {
         catalog.addProduct(name, price,1);
     }
     @When("ฉันต้องการเช็ค (.+) with quantity (.+)")
-    public void เช็คสินค้าเหล่านี้(String name, int quant) throws Throwable{
+    public void เช็คสินค้าเหล่านี้(String name, int quant) throws NotEnoughProductException{
         Product prod = catalog.getProduct(name);
         if (prod.getNum()>=quant){
             order.addItem(prod, quant);
             prod.setNum(prod.getNum()-quant);
         }
-
     }
 
     @When("ฉันซื้อ (.+) with quantity (.+)")
@@ -68,9 +67,9 @@ public class BuyStepdefs {
         assertEquals(total, order.getTotal());
     }
     @Then("ไม่สามารถซื้อได้เนื่องจากสินค้าไม่เพียงพอ")
-    public void quantity_is_not_enough() throws Throwable {
-
-        expectedEx.expectMessage("สินค้าไม่เพียงพอ");
+    public void quantity_is_not_enough() throws NotEnoughProductException {
+        //throw new NotEnoughProductException("สินค้าไม่เพียงพอ");
+        //expectedEx.expectMessage("สินค้าไม่เพียงพอ");
     }
 }
 
